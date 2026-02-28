@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Configures a new Ubuntu machine with nginx, Holberton School page, 301 redirect, and custom 404 page
+
+apt-get update -y
+apt-get install -y nginx
+
+echo "Holberton School" > /var/www/html/index.nginx-debian.html
+
+# Create custom 404 page
+echo "Ceci n'est pas une page" > /var/www/html/404.html
+
+# Add 301 redirect for /redirect_me before the default location block
+sed -i '/location \/ {/i\\tlocation /redirect_me {\n\t\treturn 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n\t}\n' \
+    /etc/nginx/sites-available/default
+
+# Add custom 404 error page directive inside the server block
+sed -i '/server_name _;/a\\terror_page 404 /404.html;' /etc/nginx/sites-available/default
+
+service nginx start

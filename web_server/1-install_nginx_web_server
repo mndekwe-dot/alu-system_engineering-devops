@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Configures a new Ubuntu machine to install nginx and serve Holberton School page on port 80
+
+apt-get update -y
+apt-get install -y nginx
+
+echo "Holberton School" > /var/www/html/index.nginx-debian.html
+
+service nginx start
