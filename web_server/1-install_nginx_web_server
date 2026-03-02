@@ -1,9 +1,30 @@
 #!/usr/bin/env bash
-# Configures a new Ubuntu machine to install nginx and serve Holberton School page on port 80
+# Script to install and configure Nginx web server to display "Holberton School"
 
-apt-get update -y
+# Update package list and install Nginx with -y flag to auto-confirm
+apt-get update
 apt-get install -y nginx
 
-echo "Holberton School" > /var/www/html/index.nginx-debian.html
+# Create the custom HTML page with the required content
+echo "Holberton School" > /var/www/html/index.html
 
-service nginx start
+# Configure Nginx to listen on port 80 (default configuration already does this)
+# But we'll ensure the configuration is correct
+cat > /etc/nginx/sites-available/default << 'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name _;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+EOF
+
+# Restart Nginx to apply changes (using init.d script instead of systemctl)
+/etc/init.d/nginx restart
