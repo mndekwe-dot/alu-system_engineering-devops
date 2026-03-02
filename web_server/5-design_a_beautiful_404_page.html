@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Lost in Space</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a1a;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0%   { opacity: 0.2; }
+            100% { opacity: 1; }
+        }
+
+        .container {
+            text-align: center;
+            z-index: 1;
+        }
+
+        .error-code {
+            font-size: 10rem;
+            font-weight: bold;
+            color: #4fc3f7;
+            text-shadow: 0 0 20px #4fc3f7, 0 0 40px #4fc3f7;
+            letter-spacing: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { text-shadow: 0 0 20px #4fc3f7, 0 0 40px #4fc3f7; }
+            50%       { text-shadow: 0 0 40px #4fc3f7, 0 0 80px #4fc3f7, 0 0 120px #4fc3f7; }
+        }
+
+        .astronaut {
+            font-size: 5rem;
+            margin: 20px 0;
+            display: inline-block;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50%       { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        .title {
+            font-size: 1.8rem;
+            color: #b0bec5;
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #78909c;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .home-btn {
+            display: inline-block;
+            padding: 12px 40px;
+            border: 2px solid #4fc3f7;
+            color: #4fc3f7;
+            text-decoration: none;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .home-btn:hover {
+            background-color: #4fc3f7;
+            color: #0a0a1a;
+            box-shadow: 0 0 20px #4fc3f7;
+        }
+
+        .french-text {
+            margin-top: 30px;
+            font-size: 0.85rem;
+            color: #37474f;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stars" id="stars"></div>
+
+    <div class="container">
+        <div class="error-code">404</div>
+        <div class="astronaut">&#x1F9D1;&#x200D;&#x1F680;</div>
+        <div class="title">Page Lost in Space</div>
+        <div class="subtitle">Houston, we have a problem.</div>
+        <a href="/" class="home-btn">Return to Earth</a>
+        <p class="french-text">Ceci n'est pas une page</p>
+    </div>
+
+    <script>
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            const size = Math.random() * 3;
+            star.style.width  = size + 'px';
+            star.style.height = size + 'px';
+            star.style.top    = Math.random() * 100 + '%';
+            star.style.left   = Math.random() * 100 + '%';
+            star.style.animationDelay    = Math.random() * 3 + 's';
+            star.style.animationDuration = (2 + Math.random() * 3) + 's';
+            starsContainer.appendChild(star);
+        }
+    </script>
+
+</body>
+</html>
