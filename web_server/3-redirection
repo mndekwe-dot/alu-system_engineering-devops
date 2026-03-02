@@ -6,8 +6,25 @@ apt-get install -y nginx
 
 echo "Holberton School" > /var/www/html/index.html
 
-# Add 301 redirect for /redirect_me before the default location block
-sed -i '/location \/ {/i\\tlocation /redirect_me {\n\t\treturn 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n\t}\n' \
-    /etc/nginx/sites-available/default
+# Configure nginx with 301 redirect on /redirect_me
+cat > /etc/nginx/sites-available/default << 'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name _;
+
+    location /redirect_me {
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+EOF
 
 service nginx restart
