@@ -8,23 +8,5 @@ apt-get install -y nginx
 # Create the custom HTML page with the required content
 echo "Holberton School" > /var/www/html/index.html
 
-# Configure Nginx to listen on port 80 (default configuration already does this)
-# But we'll ensure the configuration is correct
-cat > /etc/nginx/sites-available/default << 'EOF'
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    root /var/www/html;
-    index index.html index.htm index.nginx-debian.html;
-
-    server_name _;
-
-    location / {
-        try_files $uri $uri/ =404;
-    }
-}
-EOF
-
-# Restart Nginx to apply changes (using init.d script instead of systemctl)
-/etc/init.d/nginx restart
+# Start Nginx service
+service nginx start
