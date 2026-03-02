@@ -4,16 +4,32 @@
 apt-get update -y
 apt-get install -y nginx
 
-echo "Holberton School" > /var/www/html/index.nginx-debian.html
+echo "Holberton School" > /var/www/html/index.html
 
 # Create custom 404 page
 echo "Ceci n'est pas une page" > /var/www/html/404.html
 
-# Add 301 redirect for /redirect_me before the default location block
-sed -i '/location \/ {/i\\tlocation /redirect_me {\n\t\treturn 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n\t}\n' \
-    /etc/nginx/sites-available/default
+# Configure nginx with 301 redirect and custom 404 page
+cat > /etc/nginx/sites-available/default << 'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
 
-# Add custom 404 error page directive inside the server block
-sed -i '/server_name _;/a\\terror_page 404 /404.html;' /etc/nginx/sites-available/default
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
 
-service nginx start
+    server_name _;
+
+    error_page 404 /404.html;
+
+    location /redirect_me {
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+EOF
+
+service nginx restart
