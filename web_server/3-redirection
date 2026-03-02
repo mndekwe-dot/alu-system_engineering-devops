@@ -4,7 +4,7 @@
 apt-get update -y
 apt-get install -y nginx
 
-echo "Holberton School" > /var/www/html/index.nginx-debian.html
+echo "Holberton School" > /var/www/html/index.html
 
 # Add 301 redirect for /redirect_me before the default location block
 sed -i '/location \/ {/i\\tlocation /redirect_me {\n\t\treturn 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n\t}\n' \
