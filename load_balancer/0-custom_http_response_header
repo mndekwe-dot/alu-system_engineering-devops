@@ -1,27 +1,18 @@
 #!/usr/bin/env bash
-# Configures a new Ubuntu machine with nginx and custom X-Served-By response header
+# Configure Nginx server so that /redirect_me is redirecting to another page
 
-apt-get update -y
-apt-get install -y nginx
-
-echo "Holberton School" > /var/www/html/index.html
-
-cat > /etc/nginx/sites-available/default << 'EOF'
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    root /var/www/html;
-    index index.html index.htm index.nginx-debian.html;
-
-    server_name _;
-
-    add_header X-Served-By $hostname;
-
-    location / {
-        try_files $uri $uri/ =404;
-    }
+sudo apt-get update -y
+sudo apt-get install -y nginx
+config=\
+"server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+        root /var/www/html;
+        index index.html index.htm index.nginx-debian.html;
+        server_name _;
+	add_header X-Served-By \$HOSTNAME;
 }
-EOF
-
-service nginx restart
+"
+sudo chown -R "$USER":"$USER" /etc/nginx/sites-available/default
+echo "$config" > /etc/nginx/sites-available/default
+sudo service nginx restart
