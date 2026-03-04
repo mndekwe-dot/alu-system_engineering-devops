@@ -1,47 +1,16 @@
 #!/usr/bin/env bash
-# Installs and configures HAProxy load balancer with round-robin between web-01 and web-02
+#Bash script that installs HAProxy & makes configurations
 
-apt-get update -y
-apt-get install -y haproxy
-
-cat > /etc/haproxy/haproxy.cfg << 'EOF'
-global
-    log /dev/log local0
-    log /dev/log local1 notice
-    chroot /var/lib/haproxy
-    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
-    stats timeout 30s
-    user haproxy
-    group haproxy
-    daemon
-
-defaults
-    log global
-    mode http
-    option httplog
-    option dontlognull
-    timeout connect 5000
-    timeout client 50000
-    timeout server 50000
-    errorfile 400 /etc/haproxy/errors/400.http
-    errorfile 403 /etc/haproxy/errors/403.http
-    errorfile 408 /etc/haproxy/errors/408.http
-    errorfile 500 /etc/haproxy/errors/500.http
-    errorfile 502 /etc/haproxy/errors/502.http
-    errorfile 503 /etc/haproxy/errors/503.http
-    errorfile 504 /etc/haproxy/errors/504.http
-
-frontend http_front
+apt-get -y install software-properties-common
+add-apt-repository ppa:vbernat/haproxy-1.8
+apt-get update
+apt-get -y install haproxy
+echo "ENABLED=1" >> /etc/default/haproxy
+printf %s "listen 5819-webs
     bind *:80
-    default_backend http_back
-
-backend http_back
+    mode http
     balance roundrobin
-    server 7058-web-01 44.203.152.117:80 check
-    server 7058-web-02 54.167.139.121:80 check
-EOF
-
-# Enable HAProxy init script management
-echo "ENABLED=1" >> /etc/default/haproxy 2>/dev/null || true
-
-service haproxy restart
+    server 6917-web-01 3.93.143.209:80 check
+    server 6917-web-02 98.82.2.172:80 check
+" >> /etc/haproxy/haproxy.cfg
+sudo service haproxy restart
