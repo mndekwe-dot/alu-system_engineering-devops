@@ -3,6 +3,9 @@
     "allow": [
       "Bash(git -C \"/c/Users/user/OneDrive/Documents/Zoom/alu-system_engineering-devops\" log --oneline -5)",
       "Bash(chmod +x \"/c/Users/user/OneDrive/Documents/Zoom/alu-system_engineering-devops/web_server/0-transfer_file\" \"/c/Users/user/OneDrive/Documents/Zoom/alu-system_engineering-devops/web_server/1-install_nginx_web_server\" \"/c/Users/user/OneDrive/Documents/Zoom/alu-system_engineering-devops/web_server/3-redirection\" \"/c/Users/user/OneDrive/Documents/Zoom/alu-system_engineering-devops/web_server/4-not_found_page_404\")"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\user\\OneDrive\\Documents\\Zoom\\alu-system_engineering-devops\\load_balancer"
     ]
   }
 }
