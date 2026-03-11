@@ -1370,4 +1370,209 @@ EC2 Instance (44.203.152.117)
 
 ---
 
+---
+
+## 9. Load Balancing & HAProxy
+
+### What Is a Load Balancer?
+
+A load balancer sits in front of multiple servers and distributes incoming traffic between them. Instead of one server handling everything, two or more servers share the load.
+
+```
+User Request
+     ↓
+Load Balancer (lb-01: 44.202.26.45)
+     ↓            ↓
+  web-01        web-02
+(44.203.152.117) (54.167.139.121)
+```
+
+**Why it matters:**
+- **Redundancy** — if web-01 crashes, web-02 keeps serving
+- **Scalability** — double the servers = double the capacity
+- **Reliability** — users never notice one server going down
+
+### HAProxy
+
+HAProxy (High Availability Proxy) is the most popular open-source load balancer. It runs on lb-01 and decides which backend server handles each request.
+
+**Install HAProxy:**
+```bash
+apt-get -y install software-properties-common
+add-apt-repository ppa:vbernat/haproxy-1.8
+apt-get update
+apt-get -y install haproxy
+```
+
+### HAProxy Configuration
+
+The config file lives at `/etc/haproxy/haproxy.cfg`. You append your settings to it:
+
+```
+listen 7058-webs
+    bind *:80              ← listen on all interfaces, port 80
+    mode http              ← HTTP mode (not TCP)
+    balance roundrobin     ← algorithm: take turns
+    server 7058-web-01 44.203.152.117:80 check   ← web-01
+    server 7058-web-02 54.167.139.121:80 check   ← web-02
+```
+
+| Directive | Meaning |
+|---|---|
+| `listen` | Combines frontend + backend in one block |
+| `bind *:80` | Accept traffic on port 80 from any IP |
+| `balance roundrobin` | Alternate requests between servers equally |
+| `server name IP:port check` | Define a backend server, `check` = health check |
+
+### Round Robin Algorithm
+
+```
+Request 1 → web-01
+Request 2 → web-02
+Request 3 → web-01
+Request 4 → web-02
+...and so on
+```
+
+Simple, fair, and effective when both servers have equal capacity.
+
+### Managing HAProxy via Init Script
+
+The task requires HAProxy to be manageable via an init script (not just systemctl):
+
+```bash
+echo "ENABLED=1" >> /etc/default/haproxy   # enable init script
+service haproxy restart                      # start/restart HAProxy
+```
+
+---
+
+## 10. Custom HTTP Response Headers
+
+### What Is an HTTP Header?
+
+When a server responds to a browser, it sends two parts:
+1. **Headers** — metadata (status, content type, custom info)
+2. **Body** — the actual HTML/content
+
+```
+HTTP/1.1 200 OK
+Server: nginx/1.18.0
+X-Served-By: 7058-web-01     ← custom header
+Content-Type: text/html
+
+<html>Holberton School</html>
+```
+
+### The X-Served-By Header
+
+When you have a load balancer, you can't tell which server handled a request just by looking at the response. The `X-Served-By` header solves this — each server adds its own hostname to every response.
+
+**In nginx config:**
+```nginx
+add_header X-Served-By $hostname;
+```
+
+`$hostname` is nginx's built-in variable — it automatically contains the server's hostname at request time.
+
+**Why `$hostname` not `$HOSTNAME`:**
+| Variable | Context | Value |
+|---|---|---|
+| `$HOSTNAME` | Bash environment variable (uppercase) | Set at shell start |
+| `$hostname` | Nginx built-in variable (lowercase) | Evaluated at request time |
+
+In the nginx config file, you need nginx's `$hostname`. In a bash double-quoted string, you write `\$hostname` so bash doesn't try to expand it — the backslash tells bash "leave this for nginx to handle".
+
+**Verify the header:**
+```bash
+curl -sI http://44.203.152.117 | grep X-Served-By
+# X-Served-By: 7058-web-01
+
+curl -sI http://54.167.139.121 | grep X-Served-By
+# X-Served-By: 7058-web-02
+```
+
+**Verify through load balancer (alternates each time):**
+```bash
+curl -sI http://44.202.26.45 | grep X-Served-By
+# X-Served-By: 7058-web-01
+curl -sI http://44.202.26.45 | grep X-Served-By
+# X-Served-By: 7058-web-02
+```
+
+---
+
+## 11. Multiple Server Environments
+
+### Your Infrastructure
+
+```
+Internet
+    ↓
+imboni.tech → 44.202.26.45 (DNS A record)
+    ↓
+7058-lb-01 (44.202.26.45) — HAProxy load balancer
+    ↓ round-robin ↓
+7058-web-01              7058-web-02
+(44.203.152.117)         (54.167.139.121)
+  - Nginx port 80          - Nginx port 80
+  - Holberton School       - Holberton School
+  - X-Served-By header     - X-Served-By header
+  - resume.imboni.tech
+```
+
+### Connecting to Each Server
+
+| Server | SSH Command |
+|---|---|
+| web-01 | `ssh -i ~/.ssh/school ubuntu@44.203.152.117` |
+| web-02 | `ssh -i ~/.ssh/school ubuntu@54.167.139.121` |
+| lb-01  | `ssh -i ~/.ssh/school ubuntu@44.202.26.45` |
+
+All use passphrase: `betty`
+
+### Transferring Files to Any Server
+
+```bash
+# From webterm, using the 0-transfer_file script:
+cd /alu-system_engineering-devops/web_server
+
+./0-transfer_file ../load_balancer/0-custom_http_response_header 44.203.152.117 ubuntu ~/.ssh/school
+./0-transfer_file ../load_balancer/0-custom_http_response_header 54.167.139.121 ubuntu ~/.ssh/school
+./0-transfer_file ../load_balancer/1-install_load_balancer 44.202.26.45 ubuntu ~/.ssh/school
+```
+
+### Key Lesson: SSH Key Must Exist on Every Server
+
+When you add a new server (web-02, lb-01), your public key is NOT automatically there. You must add it manually via **AWS EC2 Instance Connect** first:
+
+1. AWS Console → EC2 → select instance → Connect → EC2 Instance Connect
+2. In browser terminal: `echo "your-school.pub-content" >> ~/.ssh/authorized_keys`
+3. Now `ssh -i ~/.ssh/school ubuntu@NEW_SERVER_IP` works
+
+---
+
+## Updated Exam Checklist
+
+### Load Balancing
+- [ ] Explain what a load balancer does and why it's needed
+- [ ] Explain the round-robin algorithm
+- [ ] Write a HAProxy listen block for two backend servers
+- [ ] Explain what `balance roundrobin` means
+- [ ] Explain what `server name IP:port check` does
+
+### Custom HTTP Headers
+- [ ] Explain what HTTP headers are
+- [ ] Write the nginx directive to add `X-Served-By` header
+- [ ] Explain the difference between `$hostname` (nginx) and `$HOSTNAME` (bash)
+- [ ] Verify a custom header using `curl -sI URL | grep X-Served-By`
+- [ ] Explain why X-Served-By is useful with a load balancer
+
+### Multi-Server Management
+- [ ] List all 3 servers with their IPs and roles
+- [ ] Explain how to add SSH key access to a new server
+- [ ] Describe the full flow to deploy a script to all 3 servers
+
+---
+
 *End of Study Guide*
