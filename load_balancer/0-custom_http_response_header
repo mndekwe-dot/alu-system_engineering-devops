@@ -4,7 +4,10 @@
 apt-get update -y
 apt-get install -y nginx
 
-cat > /etc/nginx/sites-available/default << 'EOF'
+# Get the machine's hostname at script run time
+HOSTNAME_VAL=$(hostname)
+
+cat > /etc/nginx/sites-available/default << EOF
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -14,10 +17,10 @@ server {
 
     server_name _;
 
-    add_header X-Served-By $hostname always;
+    add_header X-Served-By ${HOSTNAME_VAL};
 
     location / {
-        try_files $uri $uri/ =404;
+        try_files \$uri \$uri/ =404;
     }
 }
 EOF
