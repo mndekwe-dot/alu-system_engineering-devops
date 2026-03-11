@@ -2,9 +2,6 @@
 # Installs and configures HAProxy to load balance between web-01 and web-02 using round-robin
 
 apt-get update -y
-apt-get install -y software-properties-common
-add-apt-repository -y ppa:vbernat/haproxy-1.8
-apt-get update -y
 apt-get install -y haproxy
 
 cat > /etc/haproxy/haproxy.cfg << 'EOF'
