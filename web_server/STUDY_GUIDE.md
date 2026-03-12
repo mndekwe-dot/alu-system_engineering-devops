@@ -23,7 +23,7 @@
 
 ### What Is EC2?
 
-Amazon EC2 (Elastic Compute Cloud) is a service that lets you rent virtual computers — called **instances** — in Amazon's data centers. Instead of buying physical hardware, you pay for computing time. EC2 instances run in the cloud but behave exactly like real computers. You can install software on them, run web servers, and connect to them over the internet.
+Amazon EC2 (Elastic Compute Cloud) is a service that lets you rent v irtual computers — called **instances** — in Amazon's data centers. Instead of buying physical hardware, you pay for computing time. EC2 instances run in the cloud but behave exactly like real computers. You can install software on them, run web servers, and connect to them over the internet.
 
 Think of an EC2 instance as a computer that lives in a data center somewhere in the world. You never physically touch it, but you can connect to it from anywhere using SSH.
 
