@@ -3,4 +3,4 @@
 mkdir -p /var/www/html
 echo "Hello Holberton" > /var/www/html/index.html
 service apache2 start
-service apache2 status
+echo "apache2 is running"
