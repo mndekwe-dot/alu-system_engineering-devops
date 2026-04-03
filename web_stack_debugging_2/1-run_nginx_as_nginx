@@ -7,11 +7,11 @@ which nginx || apt-get install -y nginx
 # Create nginx user if it doesn't exist
 id -u nginx &>/dev/null || useradd --no-create-home --shell /bin/false nginx
 
-# Set nginx user in main config - replace any existing user directive
-sed -i 's/^user [a-z-]*;/user nginx;/' /etc/nginx/nginx.conf
+# Replace user directive (handles www-data or any other user, with possible spaces/tabs)
+sed -i 's/^\(user\s\+\)[a-z_-]*\(\s*;\)/\1nginx\2/' /etc/nginx/nginx.conf
 
-# If no user directive found, add it at the top
-grep -q '^user nginx;' /etc/nginx/nginx.conf || sed -i '1s/^/user nginx;\n/' /etc/nginx/nginx.conf
+# If still no nginx user directive, force add it
+grep -q 'user nginx' /etc/nginx/nginx.conf || sed -i '1s/^/user nginx;\n/' /etc/nginx/nginx.conf
 
 # Change port from 80 to 8080 in default site
 sed -i 's/listen 80 default_server/listen 8080 default_server/g' /etc/nginx/sites-available/default
