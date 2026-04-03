@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Fix Apache to return a page containing Hello Holberton on port 80
-mkdir -p /var/www/html
-echo "Hello Holberton" > /var/www/html/index.html
+# Start Apache and create a page returning Hello Holberton
+
 service apache2 start
-echo "apache2 is running"
+echo "Hello Holberton" > /var/www/html/index.html
