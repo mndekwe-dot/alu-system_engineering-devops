@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
-#Script to run nginx on docker container
-sudo apt-get update -y
-sudo apt-get install nginx -y
-first="listen\s[0-9]*?\sdefault_server"
-second="listen 80 default_server"
-start="listen\s\[::\]:[0-9]*?\sdefault_server"
-end="listen [::]:80 default_server"
-sudo sed -ri "s/$first/$second/" /etc/nginx/sites-available/default
-sudo sed -ri "s/$start/$end/" /etc/nginx/sites-available/default
-sudo sed -ri "s/$first/$second/" /etc/nginx/sites-enabled/default
-sudo sed -ri "s/$start/$end/" /etc/nginx/sites-enabled/default
-sudo service nginx restart
+# Fix Nginx to listen on port 80 on all active IPv4 IPs
+
+# Step 1: Install nginx if not installed
+apt-get update -y
+apt-get install -y nginx
+
+# Step 2: Fix port in nginx config if not set to 80
+sed -i 's/listen [0-9]* default_server/listen 80 default_server/' /etc/nginx/sites-available/default
+sed -i 's/listen \[::\]:[0-9]* default_server/listen [::]:80 default_server/' /etc/nginx/sites-available/default
+
+# Step 3: Ensure sites-enabled is linked to sites-available
+ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+# Step 4: Test nginx config for syntax errors
+nginx -t
+
+# Step 5: Start or restart nginx
+service nginx restart
