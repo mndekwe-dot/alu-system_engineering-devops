@@ -10,17 +10,9 @@ id -u nginx &>/dev/null || useradd --no-create-home --shell /bin/false nginx
 # Set nginx user in main config
 sed -i 's/^user .*/user nginx;/' /etc/nginx/nginx.conf
 
-# Write a clean default config listening on 8080
-echo 'server {
-	listen 8080 default_server;
-	listen [::]:8080 default_server;
-	root /var/www/html;
-	index index.html index.htm index.nginx-debian.html;
-	server_name _;
-	location / {
-		try_files $uri $uri/ =404;
-	}
-}' > /etc/nginx/sites-available/default
+# Change port from 80 to 8080 in default site
+sed -i 's/listen 80 default_server/listen 8080 default_server/g' /etc/nginx/sites-available/default
+sed -i 's/listen \[::\]:80 default_server/listen [::]:8080 default_server/g' /etc/nginx/sites-available/default
 
 # Ensure symlink exists
 ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
